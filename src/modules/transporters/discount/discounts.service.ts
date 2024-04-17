@@ -10,18 +10,18 @@ export class DiscountsService {
     ) { }
 
     async getDiscounts(user) {
-        return await this.discountModel.find({ userId: user._id });
+        return await this.discountModel.find({ transporterId: user._id });
     }
 
     async createDiscount(user, createDiscount) {
         const discount = new this.discountModel({
             ...createDiscount,
-            userId: user._id
+            transporterId: user._id
         });
         return await discount.save();
     }
 
     async deleteDiscount(user, id) {
-        return await this.discountModel.findOneAndDelete({ _id: id, transporterId: user.id });
+        return await this.discountModel.findOneAndDelete({ _id: id, transporterId: user._id });
     }
 }
