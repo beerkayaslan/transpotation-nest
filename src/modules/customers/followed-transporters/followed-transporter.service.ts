@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { FollowedTransporter } from './entities/followedt-transporter.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { Role } from 'src/auth/role.enum';
 
 @Injectable()
 export class FollowedTransporterService {
@@ -10,64 +11,45 @@ export class FollowedTransporterService {
     ) { }
 
     async getFollowedTransporters(userId: Types.ObjectId) {
-        // use aggragate to get followed transporters with transporter details in users collection transpr
-        // this code right but all transporters get data but we need followed transporter followed: true or false add field
-
-        const followedTransporters = await this.followedTransporterModel.aggregate([
-            {
-                $match: { customerId: userId }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    // transporterId is a array of string so we need to convert it to ObjectId
-                    let: { transporterId: { $map: { input: '$transporterId', as: 'id', in: { $toObjectId: '$$id' } } } },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: { $in: ['$_id', '$$transporterId'] }
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: 1,
-                                name: 1,
-                                email: 1,
-                            }
+        try {
+            const data = await this.followedTransporterModel.aggregate([
+                {
+                    $match: { role: Role.TRANSPORTER }
+                },
+                {
+                    $addFields: {
+                        followed: {
+                            $cond: { if: { $in: [userId, "$followers"] }, then: true, else: false }
                         }
-                    ],
-                    as: 'transporter'
+                    }
                 }
-            },
-            {
-                $unwind: "$transporter"
-            }
-        ]);
+            ]);
 
-        return followedTransporters;
+            return data;
+        }
+        catch (error) {
+            console.log(error.message)
+            throw new Error(error);
+        }
 
     }
 
     async createFollowedTransporter(userId: Types.ObjectId, transporterId: string) {
 
-        const data = await this.followedTransporterModel.find({ customerId: userId });
+        const findTransporter = await this.followedTransporterModel.findOne({ _id: transporterId, role: Role.TRANSPORTER });
 
-        if (data.length > 0) {
-            return await this.followedTransporterModel.findOneAndUpdate({ customerId: userId }, { $push: { transporterId } });
+        if (findTransporter) {
+            return await this.followedTransporterModel.findOneAndUpdate({ _id: transporterId }, { $push: { followers: userId } });
         }
-
-        return await this.followedTransporterModel.create({ customerId: userId, transporterId });
     }
 
     async deleteFollowedTransporter(userId: Types.ObjectId, transporterId: string) {
 
-        const data = await this.followedTransporterModel.find({ customerId: userId });
+        const findTransporter = await this.followedTransporterModel.findOne({ _id: transporterId, role: Role.TRANSPORTER });
 
-        if (data.length > 0) {
-            return await this.followedTransporterModel.findOneAndUpdate({ customerId: userId }, { $pull: { transporterId } });
+        if (findTransporter) {
+            return await this.followedTransporterModel.findOneAndUpdate({ _id: transporterId }, { $pull: { followers: userId } });
         }
-
-        return null;
 
     }
 
