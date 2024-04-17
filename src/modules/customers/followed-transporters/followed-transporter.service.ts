@@ -10,7 +10,42 @@ export class FollowedTransporterService {
     ) { }
 
     async getFollowedTransporters(userId: Types.ObjectId) {
-        return await this.followedTransporterModel.find({ customerId: userId });
+        // use aggragate to get followed transporters with transporter details in users collection transpr
+        // this code right but all transporters get data but we need followed transporter followed: true or false add field
+
+        const followedTransporters = await this.followedTransporterModel.aggregate([
+            {
+                $match: { customerId: userId }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    // transporterId is a array of string so we need to convert it to ObjectId
+                    let: { transporterId: { $map: { input: '$transporterId', as: 'id', in: { $toObjectId: '$$id' } } } },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $in: ['$_id', '$$transporterId'] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                email: 1,
+                            }
+                        }
+                    ],
+                    as: 'transporter'
+                }
+            },
+            {
+                $unwind: "$transporter"
+            }
+        ]);
+
+        return followedTransporters;
+
     }
 
     async createFollowedTransporter(userId: Types.ObjectId, transporterId: string) {
