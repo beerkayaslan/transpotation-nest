@@ -22,6 +22,6 @@ export class DiscountsService {
     }
 
     async deleteDiscount(user, id) {
-        return await this.discountModel.findOneAndDelete({ _id: id, userId: user.id });
+        return await this.discountModel.findOneAndDelete({ _id: id, transporterId: user.id });
     }
 }
