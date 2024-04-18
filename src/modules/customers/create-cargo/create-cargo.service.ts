@@ -6,12 +6,12 @@ import { GetDto } from './dto/get.dto';
 import { CreateCreateCargoDto } from './dto/create-cargo.dto';
 
 @Injectable()
-export class FollowedTransporterService {
+export class CreateCargoService {
     constructor(
         @InjectModel(CreateCargo.name) private followedTransporterModel: Model<CreateCargo>,
     ) { }
 
-    async getFollowedTransporters(userId: Types.ObjectId, getDto: GetDto) {
+    async getCargos(userId: Types.ObjectId, getDto: GetDto) {
         try {
 
             const { page = 1, limit = 10, search, searchKeys } = getDto;

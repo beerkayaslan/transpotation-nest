@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { FollowedTransporterService } from './create-cargo.service';
+import { CreateCargoService } from './create-cargo.service';
 import { DiscountsController } from './create-cargo.controller';
 import { CreateCargo, CreateCargoSchema } from './entities/create-cargo.entity';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,7 +13,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       },
     ]),
   ],
-  providers: [FollowedTransporterService],
+  providers: [CreateCargoService],
   controllers: [DiscountsController]
 })
 export class CreateCargoModule {}
