@@ -53,6 +53,16 @@ export class DiscountsService {
     }
 
     async getDiscount(code: string, transporter: string) {
-        return await this.discountModel.findOne({ code, transporterId: transporter });
+        const data = await this.discountModel.findOne({ code, transporterId: transporter });
+
+        const startDate = new Date(data.startDate.split("-").reverse().join("-"));
+        const endDate = new Date(data.endDate.split("-").reverse().join("-"));
+    
+        if (startDate <= new Date() && endDate >= new Date()) {
+            console.log('Discount is valid')
+            return data;
+        }
+
+        return null;
     }
 }

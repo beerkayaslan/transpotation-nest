@@ -1,6 +1,7 @@
 import {
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
 } from 'class-validator';
 
@@ -14,9 +15,9 @@ export class CreateCreateCargoDto {
     @IsNotEmpty()
     desi: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    km: number;
+    km: string;
 
     @IsString()
     @IsNotEmpty()
@@ -25,6 +26,10 @@ export class CreateCreateCargoDto {
     @IsString()
     @IsNotEmpty()
     city2: string;
+
+    @IsString()
+    @IsOptional()
+    code?: string;
 
     @IsNumber()
     @IsNotEmpty()
