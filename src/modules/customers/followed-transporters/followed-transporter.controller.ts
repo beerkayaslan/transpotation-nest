@@ -1,20 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FollowedTransporterService } from './followed-transporter.service';
 import { CreateFollowedTransporterDto } from './dto/create-followed-transporter.dto';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/role.enum';
+import { GetDto } from './dto/get.dto';
 
-@ApiTags('customer - followed transporters')
-@Controller('customers/followed-transporters')
+@ApiTags('customer - transporters')
+@Controller('customers/transporters')
 export class DiscountsController {
     constructor(private readonly followedTransporterService: FollowedTransporterService) { }
 
     @Get()
     @Roles(Role.CUSTOMER)
-    async getFollowedTransporters(@CurrentUser() user) {
-        return this.followedTransporterService.getFollowedTransporters(user._id);
+    async getFollowedTransporters(@CurrentUser() user, @Query() getDto: GetDto) {
+        return this.followedTransporterService.getFollowedTransporters(user._id, getDto);
     }
 
     @Post()
