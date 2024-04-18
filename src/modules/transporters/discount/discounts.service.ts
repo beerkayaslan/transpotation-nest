@@ -55,6 +55,10 @@ export class DiscountsService {
     async getDiscount(code: string, transporter: string) {
         const data = await this.discountModel.findOne({ code, transporterId: transporter });
 
+        if(!data) {
+            return null;
+        }
+        
         const startDate = new Date(data.startDate.split("-").reverse().join("-"));
         const endDate = new Date(data.endDate.split("-").reverse().join("-"));
     
