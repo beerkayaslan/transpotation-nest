@@ -20,6 +20,12 @@ export class DiscountsController {
         return this.discountService.getDiscounts(user, getDto);
     }
 
+    @Get(":id")
+    @Roles(Role.CUSTOMER)
+    async getDiscount(@Param('id') id: string, @Query() data: { transporter: string}) {
+        return this.discountService.getDiscount(id, data.transporter);
+    }
+
     @Post()
     @Roles(Role.TRANSPORTER)
     async createDiscount(@CurrentUser() user: UserResponseDto, @Body() createDiscountDto: CreateDiscountDto) {
@@ -31,5 +37,7 @@ export class DiscountsController {
     async deleteDiscount(@Param('id') id: string, @CurrentUser() user: UserResponseDto) {
         return this.discountService.deleteDiscount(user, id);
     }
+
+
 
 }

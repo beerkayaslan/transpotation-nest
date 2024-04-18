@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { FollowedTransporter } from './entities/create-cargo.entity';
+import { CreateCargo } from './entities/create-cargo.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Role } from 'src/auth/role.enum';
 import { GetDto } from './dto/get.dto';
+import { CreateCreateCargoDto } from './dto/create-cargo.dto';
 
 @Injectable()
 export class FollowedTransporterService {
     constructor(
-        @InjectModel(FollowedTransporter.name) private followedTransporterModel: Model<FollowedTransporter>,
+        @InjectModel(CreateCargo.name) private followedTransporterModel: Model<CreateCargo>,
     ) { }
 
     async getFollowedTransporters(userId: Types.ObjectId, getDto: GetDto) {
@@ -26,27 +26,10 @@ export class FollowedTransporterService {
                 query = { $or: searchConditions };
             }
 
-            query = { ...query, role: Role.TRANSPORTER };
+            query = { ...query, userId };
 
             const total = await this.followedTransporterModel.countDocuments(query);
-            const data = await this.followedTransporterModel.aggregate([
-                {
-                    $match: query
-                },
-                {
-                    $addFields: {
-                        followed: {
-                            $cond: { if: { $in: [userId, "$followers"] }, then: true, else: false }
-                        }
-                    }
-                },
-                {
-                    $skip: Number(skip)
-                },
-                {
-                    $limit: Number(limit)
-                }
-            ]);
+            const data = await this.followedTransporterModel.find(query).skip(Number(skip)).limit(Number(limit));
 
             const meta = {
                 page: Number(page),
@@ -57,29 +40,30 @@ export class FollowedTransporterService {
             return { data, meta };
         }
         catch (error) {
-            console.log(error.message)
             throw new Error(error);
         }
 
     }
 
-    async createFollowedTransporter(userId: Types.ObjectId, transporterId: string) {
-
-        const findTransporter = await this.followedTransporterModel.findOne({ _id: transporterId, role: Role.TRANSPORTER });
-
-        if (findTransporter) {
-            return await this.followedTransporterModel.findOneAndUpdate({ _id: transporterId }, { $push: { followers: userId } });
+    async createCargo(userId: Types.ObjectId, createFollowedTransporterDto: CreateCreateCargoDto) {
+        try {
+            const createdFollowedTransporter = new this.followedTransporterModel({ ...createFollowedTransporterDto, userId });
+            return await createdFollowedTransporter.save();
+        }
+        catch (error) {
+            throw new Error(error);
         }
     }
 
-    async deleteFollowedTransporter(userId: Types.ObjectId, transporterId: string) {
-
-        const findTransporter = await this.followedTransporterModel.findOne({ _id: transporterId, role: Role.TRANSPORTER });
-
-        if (findTransporter) {
-            return await this.followedTransporterModel.findOneAndUpdate({ _id: transporterId }, { $pull: { followers: userId } });
+ 
+    async deleteCargo(userId: Types.ObjectId, id: string) {
+        try {
+            return await this.followedTransporterModel.findOneAndDelete({ _id: id, userId });
         }
-
+        catch (error) {
+            throw new Error(error);
+        }
     }
 
+    
 }

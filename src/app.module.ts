@@ -11,6 +11,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { DiscountsModule } from './modules/transporters/discount/discounts.module';
 import { RolesGuard } from './auth/roles.guard';
 import { FollowedTransporterModule } from './modules/customers/followed-transporters/followed-transporter.module';
+import { CreateCargoModule } from './modules/customers/create-cargo/create-cargo.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { FollowedTransporterModule } from './modules/customers/followed-transpor
     JwtModule.register({}),
     AuthModule,
     DiscountsModule,
-    FollowedTransporterModule
+    FollowedTransporterModule,
+    CreateCargoModule
   ],
   controllers: [AppController],
   providers: [AppService,
