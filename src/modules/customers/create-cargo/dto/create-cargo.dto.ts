@@ -1,18 +1,33 @@
 import {
     IsNotEmpty,
+    IsNumber,
     IsString,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateFollowedTransporterDto {
+export class CreateCreateCargoDto {
 
-    @ApiProperty({
-        description: 'Transporter ID',
-        type: 'string',
-        example: '60f6b1f8f2d7c9001f8b4567',
-    })
     @IsString()
     @IsNotEmpty()
     transporterId: string;
+
+    @IsString()
+    @IsNotEmpty()
+    desi: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    km: number;
+
+    @IsString()
+    @IsNotEmpty()
+    city1: string;
+    
+    @IsString()
+    @IsNotEmpty()
+    city2: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    price: number;    
 
 }
